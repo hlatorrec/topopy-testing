@@ -14,3 +14,5 @@ conda install -c conda-forge topopy
 
 ## Example
 Here is an example. See the [documentation](https://github.com/hlatorrec/topopy-testing) for more [examples](https://github.com/hlatorrec/topopy-testing) and [tutorials](https://github.com/hlatorrec/topopy-testing).
+
+## Citation
