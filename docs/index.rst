@@ -13,5 +13,3 @@ Elaborate description of TopoPy
 	
 Modules
 =======
-
-* :ref:`modindex`
