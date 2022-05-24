@@ -10,3 +10,8 @@ Elaborate description of TopoPy
 	Installation <user_guide/installation>
 	Item2
 	Item3
+	
+Modules
+=======
+
+* :ref:`modindex`
