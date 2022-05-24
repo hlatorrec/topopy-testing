@@ -1,0 +1,4 @@
+gdal
+matplotlib
+numpy
+scipy
