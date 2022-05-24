@@ -9,3 +9,6 @@ dependencies:
     - scipy
     - nbsphinx
     - gdal >=3
+    - skimage
+    - PyQt5
+    
