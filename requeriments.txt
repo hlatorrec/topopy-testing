@@ -1,4 +1,0 @@
-gdal
-matplotlib
-numpy
-scipy
