@@ -8,8 +8,12 @@ Elaborate description of TopoPy
 	:caption: Example index tree
 	
 	Installation <user_guide/installation>
-	Item2
-	Item3
-	
-Modules
-=======
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
