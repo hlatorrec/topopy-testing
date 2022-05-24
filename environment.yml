@@ -7,3 +7,5 @@ dependencies:
     - numpy
     - matplotlib
     - scipy
+    - nbsphinx
+    - gdal >=3
