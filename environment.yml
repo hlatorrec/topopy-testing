@@ -1,0 +1,9 @@
+name: topopy
+
+channels:
+    - conda-forge
+    
+dependencies:
+    - numpy
+    - matplotlib
+    - scipy
