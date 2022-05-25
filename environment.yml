@@ -7,6 +7,5 @@ dependencies:
     - numpy
     - matplotlib
     - scipy
-    - nbsphinx
     - gdal >=3
     - scikit-image
