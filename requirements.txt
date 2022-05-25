@@ -4,4 +4,3 @@ spipy
 nbsphinx
 gdal>=3
 scikit-image
-pyqt
