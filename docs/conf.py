@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../topopy/'))
+sys.path.insert(0, os.path.abspath('..'))
 
 
 
@@ -34,7 +34,6 @@ extensions = ['sphinx.ext.autodoc']
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
-master_doc = 'index'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
