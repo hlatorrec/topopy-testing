@@ -8,6 +8,8 @@ Elaborate description of TopoPy
 	:caption: Example index tree
 	
 	Installation <user_guide/installation>
+	Modules <modules>
+	TopoPy <topopy>
 
 
 
