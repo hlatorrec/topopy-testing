@@ -14,7 +14,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import topopy
+
 
 
 # -- Project information -----------------------------------------------------
@@ -51,9 +51,6 @@ language = None
 
 # The name of Pygments (syntax highlighting) style to use.
 pygments_style = 'friendly'
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
 
 # -- Options for HTML output -------------------------------------------------
 
