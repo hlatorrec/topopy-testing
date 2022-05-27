@@ -9,4 +9,5 @@ dependencies:
     - scipy
     - gdal >=3
     - scikit-image
-    - nbsphinx
+    - pip:
+        - nbsphinx
