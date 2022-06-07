@@ -5,6 +5,20 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
 
+#Copia y pega de https://askdevz.com/question/261582-find-all-indexes-of-a-numpy-array-closest-to-a-value
+def FindValueIndex(seq, val):
+    r = np.where(np.diff(np.sign(seq - val)) != 0)
+    idx = r + (val - seq[r]) / (seq[r + np.ones_like(r)] - seq[r])
+    idx = np.append(idx, np.where(seq == val))
+    idx = np.sort(idx)
+    return idx
+
+
+def find_crossings(array, value):
+    crossings = np.where(np.diff(np.signbit(array-value)))[0] #Para encontrar cambios de signo 
+    return crossings
+
+
 def get_slope_rval(x, y):
     linreg = linregress(x, y)
     return linreg.slope, linreg.rvalue
@@ -60,6 +74,8 @@ rmean = np.ones(rvalues.size)*np.mean(rvalues)
 plt.plot(fit_x, rvalues)
 plt.plot(fit_x, rmean)
 plt.plot(fit_x, rmedian)
+
+zero_crossings = np.where(np.diff(np.signbit(rvalues-rmedian)))[0] #Para encontrar cambios de signo
 
 #pts_range = (10, 80)
 #means, medians = meanmed_compare(x, z, pts_range)
