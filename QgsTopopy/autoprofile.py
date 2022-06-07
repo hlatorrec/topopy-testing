@@ -5,15 +5,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
 
-#Copia y pega de https://askdevz.com/question/261582-find-all-indexes-of-a-numpy-array-closest-to-a-value
-def FindValueIndex(seq, val):
-    r = np.where(np.diff(np.sign(seq - val)) != 0)
-    idx = r + (val - seq[r]) / (seq[r + np.ones_like(r)] - seq[r])
-    idx = np.append(idx, np.where(seq == val))
-    idx = np.sort(idx)
-    return idx
-
-
 def find_crossings(array, value):
     crossings = np.where(np.diff(np.signbit(array-value)))[0] #Para encontrar cambios de signo 
     return crossings
@@ -57,6 +48,20 @@ def meanmed_compare(dist, height, side_pts_range):
     
     return means, medians
         
+
+def find_main_slopes(dist, height):
+    side_pts = 9
+    gap = 0
+    while gap < 0.002:
+        side_pts += 1
+        slope, rvalues = fit_channel(dist, height, side_pts)
+        gap = np.mean(rvalues) - np.median(rvalues)
+
+    crossings = find_crossings(rvalues, np.mean(rvalues))
+    dist_index = crossings + side_pts
+    
+    
+
 ###############
 
 channel = np.loadtxt('channel.txt')
@@ -65,17 +70,18 @@ x = np.arange(0, z.size, 1)
 
 #linreg = linregress(x, z)
 
-side_pts = 25
+side_pts = 10
 fit_x = x[side_pts : x.size - side_pts]
 slopes, rvalues = fit_channel(x, z, side_pts)
 rmedian = np.ones(rvalues.size)*np.median(rvalues)
 rmean = np.ones(rvalues.size)*np.mean(rvalues)
 
+gap = np.mean(rvalues) - np.median(rvalues)
+
 plt.plot(fit_x, rvalues)
 plt.plot(fit_x, rmean)
 plt.plot(fit_x, rmedian)
-
-zero_crossings = np.where(np.diff(np.signbit(rvalues-rmedian)))[0] #Para encontrar cambios de signo
+crossings = find_crossings(rvalues, rmedian) #Para encontrar cambios de signo
 
 #pts_range = (10, 80)
 #means, medians = meanmed_compare(x, z, pts_range)

@@ -1,14 +1,17 @@
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import (QgsProcessing, QgsFeatureSink, QgsProcessingException, QgsProcessingAlgorithm, QgsProcessingParameterFeatureSource, QgsProcessingParameterFeatureSink, QgsProcessingParameterRasterLayer, parameterAsOutputLayer, QgsProcessingParameterNumber)
+from qgis.core import (QgsProcessing, QgsFeatureSink, QgsProcessingException, QgsProcessingAlgorithm,
+                       QgsProcessingParameterFeatureSource, QgsProcessingParameterRasterLayer,
+                       QgsProcessingParameterRasterDestination, QgsProcessingParameterField, QgsProcessingParameterField)
 from qgis import processing
 
-from topopy import DEM, Flow
+from topopy import Flow, extract_points
+from numpy import array
 
 class DrainageBasin(QgsProcessingAlgorithm):
-    INPUT_DEM = 'INPUT_DEM'
+    INPUT_FD = 'INPUT_FD'
     OUTPUT_DBAS = 'OUTPUT_DBAS'
     OUTLETS = 'OUTLETS'
-    MIN_AREA = 'MIN_AREA'
+    ID_FIELD = 'ID_FIELD'
 
     def tr(self, string):
         return QCoreApplication.translate('drainagebasin', string)
@@ -33,18 +36,28 @@ class DrainageBasin(QgsProcessingAlgorithm):
         return texto
 
     def initAlgorithm(self, config=None):
-        self.addParameter(QgsProcessingParameterRasterLayer(self.INPUT_DEM,  self.tr("Input DEM")))
+        self.addParameter(QgsProcessingParameterRasterLayer(self.INPUT_FD,  self.tr("Input Flow Direction raster")))
         self.addParameter(QgsProcessingParameterRasterDestination(self.OUTPUT_DBAS, "Output Drainage Basin raster", None, False))
-        self.addParameter(QgsProcessingParameterNumber(self.MIN_AREA, "Minimum area for basins (avoids very small basins)", type=QgsProcessingParameterNumber.Double))
-        
+        self.addParameter(QgsProcessingParameterFeatureSource(self.OUTLETS, 'Outlets', [QgsProcessing.TypeVectorPoint]))
+        self.addParameter(QgsProcessingParameterField(self.ID_FIELD, 'Id Field', None, self.OUTLETS, QgsProcessingParameterField.Numeric))
+
     def processAlgorithm(self, parameters, context, feedback):
-        dem_raster = self.parameterAsRasterLayer(parameters, self.INPUT_DEM, context)
+        fd_raster = self.parameterAsRasterLayer(parameters, self.INPUT_FD, context)
         dbas_raster = self.parameterAsOutputLayer(parameters, self.OUTPUT_DBAS, context)
-        min_area = self.parameterAsDouble(parameters, self.MIN_AREA, context)
+        outlets = self.parameterAsSource(parameters, self.OUTLETS, context)
         
-        dem = DEM(dem_raster.source()) #Load DEMProcessing
-        fd = Flow(dem)
-        dbas = fd.get_drainage_basins(min_area = min_area)
+        fd = Flow(fd_raster.source()) #Load Flow Direction raster
+        #Get 0.25 threshold area
+        threshold = int(fd.get_ncells() * 0.0025)
+        id_field = self.parameterAsString(parameters, self.ID_FIELD, context)
+        points = []
+        for feat in outlets.getFeatures():
+            geom = feat.geometry().asPoint()
+            oid = feat.attribute(id_field)
+            points.append([geom.x(), geom.y(), oid])
+        points = array(points)
+        outlets = fd.snap_points(points, threshold, 'channel', True)
+        dbas = fd.get_drainage_basins(outlets=outlets)
         dbas.save(dbas_raster) #Save drainage basins raster onto disc
         results = {self.OUTPUT_DBAS : dbas_raster}
         return results
