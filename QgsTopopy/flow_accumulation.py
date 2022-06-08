@@ -5,7 +5,7 @@ from qgis import processing
 from topopy import Flow
 
 class FlowAccumulation(QgsProcessingAlgorithm):
-    INPUT_FD = 'INPUT_FD' #Input DEM grid
+    INPUT_FD = 'INPUT_FD' #Input Flow Direction
     OUTPUT_FAC = 'OUTPUT_FAC' #Output flow accumulation grid
         
     def tr(self, string):
@@ -27,7 +27,7 @@ class FlowAccumulation(QgsProcessingAlgorithm):
         return 'topopy'
 
     def shortHelpString(self):
-        texto = "Takes a DEM as inpuut and outputs a flow direction raster using the Flow.get_flow_accumulation() method. Keeps default parameters (mantains NoData values, outputs a topopy.Grid object)."
+        texto = "Takes a Flow Direction raster as input and outputs a flow accumulation raster using the Flow.get_flow_accumulation() method."
         return texto
 
     def initAlgorithm(self, config=None):
