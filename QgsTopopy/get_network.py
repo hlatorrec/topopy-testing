@@ -33,11 +33,11 @@ class GetNetwork(QgsProcessingAlgorithm):
         return 'topopy'
 
     def shortHelpString(self):
-        return self.tr("")
+        return self.tr("Calculate network from flow accumulation and save onto disc")
 
     def initAlgorithm(self, config=None):
         self.addParameter(QgsProcessingParameterRasterLayer(self.INPUT_FD, self.tr('Input Flow Direction raster')))
-        self.addParameter(QgsProcessingParameterFileDestination(self.OUTPUT_NETW, self.tr('Path to save Network object'), fileFilter = '.dat'))
+        self.addParameter(QgsProcessingParameterFileDestination(self.OUTPUT_NETW, self.tr('Path to save Network object'), fileFilter = 'dat'))
         self.addParameter(QgsProcessingParameterNumber(self.THRESHOLD, self.tr('Number of cells to initiate a channel'), defaultValue = 0))
         self.addParameter(QgsProcessingParameterNumber(self.THETAREF, self.tr('m/n coeficient to calculate chi values in each channel cell'), QgsProcessingParameterNumber.Double, defaultValue = 0.45))
         self.addParameter(QgsProcessingParameterBoolean(self.GRADIENTS, self.tr('Calculate gradients'), False))
