@@ -5,11 +5,17 @@ Elaborate description of TopoPy
 
 .. toctree::
 	:maxdepth: 1
-	:caption: Example index tree
+	:caption: Documentation
 	
 	Installation <user_guide/installation>
 	Modules <modules>
 	TopoPy <topopy>
+	
+.. toctree::
+	:maxdepth: 1
+	:caption: Notebooks
+	
+	Tutorial 1 <notebooks/topopy_tutorial_1/tutorial_1>
 
 
 
