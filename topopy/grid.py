@@ -30,16 +30,14 @@ NTYPES = {'int8': 3, 'int16': 3, 'int32': 5, 'int64': 5, 'uint8': 1, 'uint16': 2
           'uint32': 4, 'uint64': 4, 'float16': 6, 'float32': 6, 'float64': 7}
 
 class PRaster():
-    
-    def __init__(self, path=""):
-        """
-        Defines a Raster object. It defines raster properties and methods. 
-        This class is used by other class to retreive raster properties
-        
-        path : str
-          Path to the raster, if left blank creates an empty PRaster
-        """
-        
+    """
+    Defines a Raster object. It defines raster properties and methods. 
+    This class is used by other class to retreive raster properties
+
+    path : str
+        Path to the raster, if left blank creates an empty PRaster
+    """    
+    def __init__(self, path=""):        
         if path:
             self._raster = gdal.Open(path)
             raster = self._raster
