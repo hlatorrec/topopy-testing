@@ -9,6 +9,5 @@ dependencies:
     - scipy
     - gdal >=3
     - scikit-image
-    - pip:
-        - sphinx-rtd-theme
-        - nbsphinx
+    - nbsphinx
+    - sphinx_rtd_theme
