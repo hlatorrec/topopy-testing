@@ -214,19 +214,17 @@ class PRaster():
         return np.ravel_multi_index((row, col), self.get_dims())
     
 class Grid(PRaster):
+    """
+    Class to manipulate rasters
         
-    def __init__(self, path="", band=1):
-        """
-        Class to manipulate rasters
-        
-        Parameters:
-        ================
-        path : str 
-          Path to the raster
-        band : int
-          Raster band to be open (usually don't need to be modified)
-        """
-    
+    Parameters:
+    ================
+    path : str 
+        Path to the raster
+    band : int
+        Raster band to be open (usually don't need to be modified)
+    """
+    def __init__(self, path="", band=1):    
         # Elements inherited from PRaster.__init__
         super().__init__(path)
 
@@ -684,21 +682,20 @@ class DEM(Grid):
         return filled_dem
 
 class Basin(DEM):
-
-    def __init__(self, dem, basin=None, idx=1):
-        """
-        Class to manipulate drainage basins. The object is basically a DEM with NoData
-        values in cells outside the drainage basin. 
+    """
+    Class to manipulate drainage basins. The object is basically a DEM with NoData
+    values in cells outside the drainage basin. 
         
-        dem : str, DEM
-          Digital Elevation Model (DEM instance). If dem is a string and basin=None, 
-          the Basin will load from this string path.
-        basin : None, str, Grid
-          Drainage basin. If None, DEM is loaded as a basin. Needs to have the same
-          dimensions and cellsize than the input DEM. 
-        idx : int
-          Value of the basin cells
-        """
+    dem : str, DEM
+        Digital Elevation Model (DEM instance). If dem is a string and basin=None, 
+        the Basin will load from this string path.
+    basin : None, str, Grid
+        Drainage basin. If None, DEM is loaded as a basin. Needs to have the same
+        dimensions and cellsize than the input DEM. 
+    idx : int
+        Value of the basin cells
+    """
+    def __init__(self, dem, basin=None, idx=1):
         # If basin is None, the DEM is already a basin and we load it
         if basin is None:
             # Call to DEM.__init__ method
