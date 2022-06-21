@@ -2,3 +2,7 @@ name: topopy
 
 channels:
     - conda-forge
+    
+dependencies:
+    - pip:
+        - sphinx-rtd-theme
