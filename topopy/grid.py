@@ -30,12 +30,11 @@ NTYPES = {'int8': 3, 'int16': 3, 'int32': 5, 'int64': 5, 'uint8': 1, 'uint16': 2
           'uint32': 4, 'uint64': 4, 'float16': 6, 'float32': 6, 'float64': 7}
 
 class PRaster():
-    """
-    Defines a Raster object. It defines raster properties and methods. 
-    This class is used by other class to retreive raster properties
+    """Defines a Raster object with raster properties and methods. 
+    This is a parent class used by other classes to inherit raster properties
 
-    path : str
-        Path to the raster, if left blank creates an empty PRaster
+    :param path: Path to raster file, creates an empty PRaster when not path is given 
+    :type path: str, optional
     """    
     def __init__(self, path=""):        
         if path:
@@ -57,61 +56,59 @@ class PRaster():
 
 
     def get_size(self):
-        """
-        Return a tuple with the size of the grid (XSize, YSize)
+        """Returns a tuple that contains the size of the grid (XSize, YSize)
         """
         return self._size
     
     def get_dims(self):
-        """
-        Return a tuple with the size of the internal array (nrow, ncol)
+        """Returns a tuple that contains the size of the internal array (nrow, ncol)
         """
         return self._size[::-1]
     
     def get_ncells(self):
-        """
-        Return the total number of cells of the Grid
+        """Returns the total number of cells on the Grid
         """
         return self._size[0] * self._size[1]
     
     def get_projection(self):
-        """
-        Return a string with the projection of the grid in WKT
+        """Return a string with the projection of the grid in WKT
         """
         return self._proj
     
     def get_cellsize(self):
-        """
-        Return a tuple with (XCellsize, YCellsize). 
-        The YCellsize is a negative value
+        """Returns a tuple with (XCellsize, YCellsize). 
+        YCellsize is a negative value
+        
+        :return: (XCellsize, YCellsize) tuple
+        :rtype: tuple
         """
         return self._geot[1], self._geot[5]
     
     def get_geotransform(self):
-        """
-        Return the GeoTranstorm matrix of the grid. This matrix has the form:
+        """Returns the GeoTransform matrix of the grid. This matrix has the form:
         *(ULx, Cx, Tx, ULy, Ty, Cy)*
-        
+        where
         * ULx = Upper-Left X coordinate (upper-left corner of the pixel)
         * ULy = Upper-Left Y coordinate (upper-left corner of the pixel)
         * Cx = X Cellsize
         * Cy = Y Cellsize (negative value)
-        * Tx = Rotation in X axis
-        * Ty = Rotation in Y axis
+        * Tx = Rotation on X axis
+        * Ty = Rotation on Y axis
+        
+        :return: GeoTransform matrix
+        :rtype: tuple
         """
         return self._geot
     
     def is_inside(self, x, y):
-        """
-        Checks if points are inside the rectangular extent of the raster
-        
-        Parameters:
-        ===========
-        x, y : coordinates (number, list, or numpy.ndarray)
-        
-        Returns:
-        ========
-        bool / bool array, indicating True (inside) or False (outside)
+        """Checks if given points are inside the rectangular extent of the raster
+
+        :param x: x coordinate
+        :type x: float, list, numpy.ndarray
+        :param y: y coordinate
+        :type y: float, list, numpy.ndarray
+        :return: Boolean or list of booleans (`True` if inside)
+        :rtype: boolean, list
         """
         
         row, col = self.xy_2_cell(x, y)
@@ -121,8 +118,10 @@ class PRaster():
         return inside
     
     def get_extent(self):
-        """
-        Returns a tuple (XMin, XMax, YMin, YMax) with the extension of the Grid
+        """Returns a tuple (XMin, XMax, YMin, YMax) with the extension of the Grid
+        
+        :return: Extension of the grid
+        :rtype: tuple
         """
         xmin = self._geot[0]
         xmax = self._geot[0] + self._size[0] * self._geot[1]
@@ -132,30 +131,24 @@ class PRaster():
         return (xmin, xmax, ymin, ymax)
     
     def copy_layout(self, grid):
-        """
-        Copy all the parameters from another PRaster instance except grid data (and nodata)
-        
-        Parameters:
-        ================
-        pRaster : topopy.PRaster instance 
-          PRaster instance from which parameters will be copied
+        """Copy all the parameters from another PRaster instance except grid data (and nodata)
+
+        :param pRaster: Raster to copy from 
+        :type pRaster: topopy.PRaster  
         """
         self._size = grid.get_size()
         self._geot = grid.get_geotransform()
         self._proj = grid.get_projection()
 
     def xy_2_cell(self, x, y):
-        """
-        Get row col indexes from XY coordinates
+        """Get row and column indexes from XY coordinates
         
-        Parameters:
-        ===========
-        x : X coordinates (number, list, or numpy.ndarray)
-        y : Y coordinates (number, list, or numpy.ndarray)
-            
-        Return:
-        =======
-        **tuple** : Tuple with (row, col) indices as np.ndarrays
+        :param x: X coordinate
+        :type x: float, list, numpy.ndarray
+        :param y: Y coordinates
+        :type y: float, list, numpy.ndarray           
+        :return: Tuple with (row, col) indices as `numpy.ndarray`
+        :rtype: tuple
         """
         x = np.array(x)
         y = np.array(y)       
@@ -164,20 +157,15 @@ class PRaster():
         return row.astype(np.int32), col.astype(np.int32)
 
     def cell_2_xy(self, row, col):
-        """
-        Get XY coordinates from (row, col) cell indexes
+        """Get XY coordinates from (row, col) cell indexes
         
-        Parameters:
-        ===========
-        row : row indexes (number, list, or numpy.ndarray)
-        col : column indexes (number, list, or numpy.ndarray)
-            
-        Return:
-        =======
-        **tuple** : Tuple with (x, y) coordinates as np.ndarrays
-
-        """
-        
+        :param row: Row indexes
+        :type row: float, list, numpy.ndarray
+        :param col: Column indexes
+        :type col: float, list, numpy.ndarray
+        :return: Tuple with (x, y) coordinates as `np.ndarray`
+        :rtype: tuple
+        """       
         row = np.array(row)
         col = np.array(col)
         x = self._geot[0] + self._geot[1] * col + self._geot[1] / 2
@@ -188,41 +176,32 @@ class PRaster():
         """
         Get row col indexes from cells linear indexes (row-major, C-style)
         
-        Parameters:
-        ===========
-        ind : linear indexes (number, list, or numpy.ndarray)
-        
-        Return:
-        =======
-        **tuple** : Tuple with (row, col) indices as numpy.ndarrays
+        :param ind: Linear indexes
+        :type ind: float, list, np.ndarray
+        :return: Tuple with (row, col) indices as `numpy.ndarray`
+        :rtype: tuple
         """
         return np.unravel_index(ind, self.get_dims()) 
     
     def cell_2_ind(self, row, col):
-        """
-        Get cell linear indexes from row and column indexes
+        """Get cell linear indexes from row and column indexes
         
-        Parameters:
-        ===========
-        row : row indexes (number, list, or numpy.ndarray)
-        col : column indexes (number, list, or numpy.ndarray)
-            
-        Return:
-        =======
-        **numpy.array** : Array with linear indexes (row-major, C-style)
+        :param row: Row indexes
+        :type row: float, list, numpy.ndarray
+        :param col: Column indexes
+        :type col: float, list, numpy.ndarray
+        :return: Array containing linear indices (row-major, C-style)
+        :rtype: np.ndarray
         """
         return np.ravel_multi_index((row, col), self.get_dims())
     
 class Grid(PRaster):
-    """
-    Class to manipulate rasters
-        
-    Parameters:
-    ================
-    path : str 
-        Path to the raster
-    band : int
-        Raster band to be open (usually don't need to be modified)
+    """Class to manipulate rasters
+    
+    :param path: Path to raster file    
+    :type path: str, optional
+    :param band: Raster band to be opened (usually doesn't need to be modified)
+    :type band: int, optional
     """
     def __init__(self, path="", band=1):    
         # Elements inherited from PRaster.__init__
@@ -241,15 +220,12 @@ class Grid(PRaster):
             self._tipo = str(self._array.dtype)
            
     def set_array(self, array):
-        """
-        Set the data array for the current Grid object. 
-        If the current Grid is an empty Grid [get_size( ) = (1, 1)], any input array is valid
+        """Set the data array for the current Grid object. 
+        If the current Grid is an empty Grid [`get_size()` = (1, 1)], any input array is valid
         If The current Grid is not an empty Grid, the input array should match Grid dimensions
         
-        Parameters:
-        ================
-        array : numpy.ndarray
-          Numpy array with the data
+        :param array: Numpy array containing the data
+        :type array: numpy.ndarray
         """
         # If the Grid is an empty Grid, any array is valid
         if self._size == (1, 1):       
@@ -264,17 +240,12 @@ class Grid(PRaster):
             return 0
        
     def read_array(self, ascopy=False):
-        """
-        Reads the internal array of the Grid instace
+        """Reads the internal array of the Grid instace
         
-        Parameters:
-        ==========
-        ascopy : bool
-          If True, the returned array is a memory view of the Grid original array.
-        
-        Return:
-        =======
-        **numpy.ndarray** : Internal array of the current Grid object
+        :param ascopy: If `True`, the returned array is a memory view of the original array
+        :type ascopy: bool, optional
+        :return: Internal array of the current Grid object
+        :rtype: numpy.ndarray
         """
         if ascopy:
             return np.copy(self._array)
@@ -282,67 +253,78 @@ class Grid(PRaster):
             return self._array
     
     def find(self):
-        """
-        Find the non-zero elements in the array. Return a tuple of arrays with
-        row and col positions.
+        """Find the non-zero elements in the array.
+        
+        :return: Tuple of arrays with row and col positions
+        :rtype: tuple
         """
         return np.where(self._array > 0)
     
     def max(self):
-        """
-        Return the maximun value of the Grid
+        """Get maximum value of the Grid
+        
+        :return: Max value
+        :rtype: float
         """
         datapos = np.where(self._array != self._nodata)
         return np.max(self._array[datapos])
     
     def min(self):
-        """
-        Return the minimun value of the Grid
+        """Get minimun value of the Grid
+        
+        :return: Min value
+        :rtype: float
         """
         datapos = np.where(self._array != self._nodata)
         return np.min(self._array[datapos])
     
     def mean(self):
-        """
-        Return the mean value of the Grid
+        """Get mean value of the Grid
+        
+        :return: Mean value
+        :rtype: float
         """
         datapos = np.where(self._array != self._nodata)
         return np.mean(self._array[datapos])
     
     def set_value(self, row, col, value):
-        """
-        Sets the value for a cell of the grid at (row, col)
+        """Sets value for the specified cells at (row, col)
         
-        Parameters:
-        ================
-        row, col : int 
-          Row and column indexes
-        value : number
-          Value for the cell (row, col)
+        :param row: Row index
+        :type row: int, numpy.ndarray
+        :param col: Column index
+        :type col: int, numpy.ndarray
+        :param value: Value to set on the cell
+        :type value: float
         """
         self._array[row, col] = value
     
     def get_value(self, row, col):
-        """
-        Gets the value for a cell/s of the grid at (row, col)
+        """Gets value of the specified cells at (row, col)
         
-        Parameters:
-        ================
-        row, col : ints or numpy.ndarrays
-          Row and column indexes
+        :param row: Row index
+        :type row: int, numpy.ndarray
+        :param col: Column index
+        :type col: int, numpy.ndarray
+        :return: Cell values
+        :rtype: float, numpy.ndarray
         """
         return self._array[row, col]
     
     def get_nodata(self):
-        """
-        Returns the value for NoData cells in the grid. This value could be None if NoData
+        """Get value for NoData cells in the grid. This value could be `None` if NoData
         is not defined in the grid.
+        
+        :return: NoData value
+        :rtype: float
         """
         return self._nodata
     
     def set_nodata(self, value):
-        """
-        Sets the nodata value for the Grid
+        """Sets NoData value for the Grid
+        
+        :param value: NoData value
+        :type value: float
         """
         # If nodata wasn't stabished, we set up the new value
         if self._nodata is None:
@@ -357,8 +339,10 @@ class Grid(PRaster):
             self._nodata = value
             
     def get_nodata_pos(self):
-        """
-        Return the positions of the NoData values as a tuple of two arrays (rows, columns)
+        """Get positions of NoData values as a tuple of two arrays (rows, columns)
+        
+        :return: Indices locating NoData values of the Grid
+        :rtype: tuple
         """
         if self._nodata is None:
             return (np.array([], np.int), np.array([], np.int))
@@ -366,8 +350,7 @@ class Grid(PRaster):
             return np.where(self._array == self._nodata)
         
     def nan_2_nodata(self):
-        """
-        Changes nan values to NoData (if Grid nodata is defined). 
+        """Changes `NaN` values to NoData (if Grid NoData is defined).
         """
         if self._nodata is None:
             return
@@ -375,12 +358,10 @@ class Grid(PRaster):
         self._array[idx] = self._nodata
     
     def values_2_nodata(self, value):
-        """
-        Change specific values to NoData (if Grid nodata is defined). 
+        """Change specific values to NoData (if Grid NoData is defined).
         
-        Parameters:
-        ===========
-        value : int, float, sequence. Value or sequence of values that will be changed to NoData
+        :param value: Values to change
+        :type value: float
         """
         if self._nodata is None:
             return
@@ -394,13 +375,10 @@ class Grid(PRaster):
                 self._array[ind] = self._nodata        
     
     def plot(self, ax=None):
-        """
-        Plots the grid in a new Axes or in a existing one
+        """Plots the grid in a new Axes or an existing one
         
-        Parameters:
-        ===========
-        ax : matplotlib.Axe
-          If is not defined, the function will use plt.imshow()
+        :param ax: Defaults to `plt.imshow` if not defined
+        :type ax: matplotlib.Axe, optional
         """
         if not PLT:
             return
@@ -416,17 +394,16 @@ class Grid(PRaster):
             plt.imshow(arr)
     
     def is_inside(self, x, y, NoData=True):
-        """
-        Checks if points are inside the rasterr
+        """Checks if points are inside the raster
         
-        Parameters:
-        ===========
-        x, y : coordinates (number, list, or numpy.ndarray)
-        NoData : Flag consider or not NoData values (If NoData == True > Points in NoData are outside)
-        
-        Returns:
-        ========
-        bool / bool array, indicating True (inside) or False (outside)
+        :param x: x coordinate
+        :type x: float, list, numpy.ndarray
+        :param y: y coordinate
+        :type y: float, list, numpy.ndarray
+        :param NoData: Flag to consider NoData values, default `True` (NoData values are outside of the raster)
+        :type NoData: bool, optional
+        :return: Boolean or list of booleans, inside is `True` and outside is `False`
+        :rtype: bool, list
         """
         inside = super().is_inside(x, y)
 
@@ -441,8 +418,10 @@ class Grid(PRaster):
         return inside
     
     def copy(self):    
-        """
-        Returns a copy of the Grid
+        """Copy the Grid
+        
+        :return: Copy of the Grid
+        :rtype: topopy.Grid
         """
         newgrid = Grid()
         newgrid.copy_layout(self)
@@ -452,13 +431,10 @@ class Grid(PRaster):
         return newgrid
     
     def save(self, path):
-        """
-        Saves the grid in the disk
+        """Saves the Grid onto disc
         
-        Parameters:
-        ================
-        path : str 
-          Path where new raster will be saved
+        :param path: Path to save the Grid at
+        :type path: str
         """
         # Check if the type of the internal array is compatible with gdal
         if str(self._tipo) not in NTYPES.keys():
@@ -488,8 +464,10 @@ class DEM(Grid):
         self.set_nodata(-9999.)
         
     def copy(self):
-        """
-        Returns a copy of the DEM
+        """Copy DEM
+        
+        :return: DEM object
+        :rtype: topopy.DEM
         """
         newgrid = DEM()
         newgrid.copy_layout(self)
@@ -499,22 +477,10 @@ class DEM(Grid):
         return newgrid
         
     def identify_flats(self, nodata=True, as_array=False):
-        """
-        This functions returns two topopy.Grids (or numpy.ndarrays) with flats and sills. 
-        Flats are defined  as cells without downward neighboring cells. Sills are cells where 
-        flat regions spill over into lower terrain. It the DEM has nodata, they will be maintained
+        """This functions returns two `topopy.Grid` (or `numpy.ndarray`) with flats and sills. 
+        Flats are defined as cells without downward neighboring cells. Sills are cells where 
+        flat regions spill over into lower terrain. It the DEM has NoData values, those will be maintained
         in output grids.
-        
-        Parameters:
-        ------------
-        nodata : boolean
-          Boolean that indicates if notada are kept (True) or replaced by zeros (False)
-        as_array : boolean
-          Boolean that indicates if outputs are boolean numpy.ndarrays (True) or a Grid objects (False)
-        
-        Returns:
-        ------------
-        **tuple** : Tuple (flats, sills) with two topopy.Grid (as_array=False) or numpy.ndarray (as_array=True)
         
         References:
         -----------
@@ -528,7 +494,15 @@ class DEM(Grid):
         Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
         MATLAB-based software for topographic analysis and modeling in Earth 
         surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
-
+        
+        :param nodata: Flag to keep or replace NoData values (default `True`).
+            If `True`, values are kept. If `False`, values are repolaced by zeros
+        :type nodata: bool, optional
+        :param as_array: Flag to chose between `numpy.ndarray` and `topopy.Grid` outputs (default `False`).
+            If `True`, outputs are `numpy.array`. If `False`, outputs are `topopy.Grid`
+        :type as_array: bool, optional
+        :return: Tuple with output Grids (flats, sills)
+        :rtype: tuple
         """
 
         z_arr = np.copy(self._array)
@@ -583,13 +557,12 @@ class DEM(Grid):
             return res
 
     def fill_sinks(self, as_array=False):
-        """
-        Fill sinks in a DEM using scikit-image reconstruction algorithm
-                
-        Returns:
-        ----------
-        ndarray : topopy.DEM object
-          Filled DEM
+        """Fill sinks in a DEM using scikit-image reconstruction algorithm
+        
+        :param as_array: Flag to return DEM as `numpy.array` (default `False`) instead of `topopy.DEM`
+        :type as_array: bool, optional
+        :return: Filled DEM
+        :rtype: topopy.DEM
         """
         # Get the seed to start the fill process
         seed = np.copy(self._array)
@@ -611,20 +584,10 @@ class DEM(Grid):
             return filled_dem
     
     def fill_sinks2(self, four_way=False):
-        """
-        Fill sinks method adapted from  fill depressions/sinks in floating point array
+        """Fill sinks method adapted from fill depressions/sinks in floating point array
         
-        Parameters:
-        ----------
-        input_array : [ndarray] Input array to be filled
-        four_way : [bool] Searchs the 4 (True) or 8 (False) adjacent cells
-        
-        Returns:
-        ----------
-        [ndarray] Filled array
-    
         This algorithm has been adapted (with minor modifications) from the 
-        Charles Morton slow fill algorithm (with ndimage and python 3 was not slow
+        Charles Morton slow fill algorithm (with ndimage and python 3 it was not slow
         at all). 
         
         References
@@ -635,7 +598,11 @@ class DEM(Grid):
         
         Soille, P., 1999. Morphological Image Analysis: Principles and
         Applications, Springer-Verlag, pp. 173-174
-    
+        
+        :param four_way: Chose between 4 (`True`) adjacent cells or 8 (`False`) adjacent cells
+        :type four_way: bool, optional
+        :return: Filled DEM
+        :rtype: topopy.DEM 
         """
         # Change nan values to a very low value
         copyarr = np.copy(self._array)
@@ -682,18 +649,15 @@ class DEM(Grid):
         return filled_dem
 
 class Basin(DEM):
-    """
-    Class to manipulate drainage basins. The object is basically a DEM with NoData
-    values in cells outside the drainage basin. 
-        
-    dem : str, DEM
-        Digital Elevation Model (DEM instance). If dem is a string and basin=None, 
-        the Basin will load from this string path.
-    basin : None, str, Grid
-        Drainage basin. If None, DEM is loaded as a basin. Needs to have the same
-        dimensions and cellsize than the input DEM. 
-    idx : int
-        Value of the basin cells
+    """Class to manipulate drainage basins. The object is basically a DEM with NoData
+    values in cells outside of the drainage basin.
+    
+    :param dem: DEM instance. If dem is `str` and basin is `None`, it will load from the specified path
+    :type dem: str, topopy.DEM
+    :param basin: Drainage basin. If `None`, DEM is loaded as a basin. Needs same dimensions and cellsize as the input DEM
+    :type basin: None, str, topopy.Grid, optional
+    :param idx: Value of the basin cells
+    :type idx: int, optional       
     """
     def __init__(self, dem, basin=None, idx=1):
         # If basin is None, the DEM is already a basin and we load it
@@ -740,8 +704,10 @@ class Basin(DEM):
         self._array = arr.astype(dem._tipo)
         
     def copy(self):    
-        """
-        Returns a copy of the Basin
+        """Get a copy of the Basin
+        
+        :return: Basin object
+        :rtype: topopy.Basin
         """
         newgrid = Basin()
         newgrid.copy_layout(self)
