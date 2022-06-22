@@ -4,6 +4,11 @@ channels:
     - conda-forge
     
 dependencies:
+    - numpy
+    - matplotlib
+    - scipy
+    - gdal >=3
+    - scikit-image
     - pip:
         - sphinx-rtd-theme
         - nbsphinx
