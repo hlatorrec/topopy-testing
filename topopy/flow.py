@@ -22,43 +22,36 @@ from . import Grid, PRaster, DEM
 class Flow(PRaster):
     '''Class to define a Flow object as topologically sorted giver-receiver cells.
     
+    References:
+    -----------
+    The algoritm to created the topologically sorted network has been adapted to Python from FLOWobj.m 
+    by Wolfgang Schwanghart (version of 17. August, 2017) included in TopoToolbox matlab codes (really
+    smart algoritms there!). If use, please cite:
+   
+    Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
+    MATLAB-based software for topographic analysis and modeling in Earth 
+    surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
+
     :param dem: Input DEM to calculate the flow for or path to a previously saved Flow object.
-        If left empty, an empty Flow instance will be created.
+        If left empty, an empty Flow instance will be created
     :type dem: topopy.DEM, str, optional
-    
+    :param auxtopo: Flag to determine whether an auxiliar topografy is used (much slower).
+        This auxiliar topography is calculated using the elevation differences betwen the filled and unfilled DEMs.
+        Default `False`. Ignored if filled is set to `True`
+    :type auxtopo: boolean, optional
+    :param filled: Flag to determine whether the input DEM was already filled. Default `False`.
+        The fill algorith implemented is fast but consumes a lot of memory.
+        Sometimes it could be necessary to fill the DEM beforehand using a another GIS tool
+    :type filled: boolean, optional
+    :param raw_z: Flag to check whether the elevation values are taken from the raw DEM (`True`) or the filled DEM (`False`).
+        Default `False`
+    :type raw_z: bool, optional
+    :param verbose: Show precessing messages. Useful for large DEMs. Default `False`
+    :type verbose: bool, optional
+    :param verb_func: Function used for output verbose messages (only needed if topopy is embeded in another application)
+    :type verb_func: str, optional
     '''
-    def __init__(self, dem="", auxtopo=False, filled=False, raw_z=False, verbose=False, verb_func=print):
-        """
-        Class that define a network object (topologically sorted giver-receiver cells)
-        
-        Parameters:
-        ===========
-        dem : *DEM object* or *str*
-          topopy.DEM instance with the input Digital Elevation Model, or path to a previously saved Flow object. If the 
-          parameter is an empty string, it will create an empty Flow instance.
-        auxtopo : boolean
-          Boolean to determine if a auxiliar topography is used (much slower). The auxiliar topography is calculated with 
-          elevation differences between filled and un-filled dem. If filled is True, auxtopo is ignored (cannot compute differences)
-        filled : boolean
-          Boolean to check if input DEM was already pit-filled. The fill algoritm implemented in the DEM object, 
-          althoug fast, consumes a lot of memory. In some cases could be necessary fill the DEM with alternative GIS tools.
-        raw_z : boolean
-          Boolean to set if elevations are taken directly from the DEM (True) or from the filled DEM (False)
-        verbose : boolean
-          Boolean to show processing messages in console to known the progress. Usefull with large DEMs to se the evolution.
-        verb_func : str
-          Function to output verbose messages (only needed if topopy is embeded in other application)
-        References:
-        -----------
-        The algoritm to created the topologically sorted network has been adapted to Python from FLOWobj.m 
-        by Wolfgang Schwanghart (version of 17. August, 2017) included in TopoToolbox matlab codes (really
-        smart algoritms there!). If use, please cite:
-                
-        Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
-        MATLAB-based software for topographic analysis and modeling in Earth 
-        surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
-        """
-        
+    def __init__(self, dem="", auxtopo=False, filled=False, raw_z=False, verbose=False, verb_func=print):      
         if dem == "":
             # Creates an empty Flow object
             super().__init__()

@@ -6,7 +6,7 @@ channels:
 dependencies:
     - numpy
     - matplotlib
-    - gdal >=3
+    - gdal
     - pip:
         - sphinx-rtd-theme
         - nbsphinx
