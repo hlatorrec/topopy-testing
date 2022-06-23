@@ -15,7 +15,7 @@ Elaborate description of TopoPy
 	:maxdepth: 1
 	:caption: Notebooks
 	
-	Tutorial 1 <notebooks/tutorial_1>
+	Tutorial 1 <notebooks/tutorial_1/tutorial_1>
 
 
 
