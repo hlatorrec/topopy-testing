@@ -5,6 +5,7 @@ channels:
     
 dependencies:
     - numpy
+    - matplotlib
     - pip:
         - sphinx-rtd-theme
         - nbsphinx
