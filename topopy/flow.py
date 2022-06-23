@@ -20,7 +20,13 @@ from scipy.sparse import csc_matrix
 from . import Grid, PRaster, DEM
 
 class Flow(PRaster):
+    '''Class to define a Flow object as topologically sorted giver-receiver cells.
     
+    :param dem: Input DEM to calculate the flow for or path to a previously saved Flow object.
+        If left empty, an empty Flow instance will be created.
+    :type dem: topopy.DEM, str, optional
+    
+    '''
     def __init__(self, dem="", auxtopo=False, filled=False, raw_z=False, verbose=False, verb_func=print):
         """
         Class that define a network object (topologically sorted giver-receiver cells)

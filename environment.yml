@@ -6,6 +6,9 @@ channels:
 dependencies:
     - numpy
     - matplotlib
+    - gdal >=3
+    - scipy
+    - scikit-image
     - pip:
         - sphinx-rtd-theme
         - nbsphinx
