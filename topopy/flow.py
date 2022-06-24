@@ -576,26 +576,9 @@ def sort_pixels(dem, auxtopo=False, filled=False, verbose=False, verb_func=print
 
 
 def get_presills(filldem, flats, sills, as_positions=True):
-    """
-    This functions extracts the presill pixel locations (i.e. pixel immediately 
-    upstream to sill pixels)- Adapted from TopoToolbox matlab codes.
+    """This functions extracts the presill pixel locations (i.e. pixel immediately 
+    upstream to sill pixels). Adapted from TopoToolbox matlab codes.
     
-    Parameters:
-    -----------
-    filldem : *np.ndarray*
-      Array of values representing a filled DEM
-    flats : *np.ndarray*
-      Numpy logical array with location of the flats (cells without downward 
-      neighboring cells)
-    sills: *np.ndarray*
-      Numpy logical array with location of the sills (cells where flat regions 
-      spill over into lower terrain)
-    
-    Return:
-    -------
-    presills_pos : list
-      List of tuples (row, col) with the location of the presill pixels
-      
     References:
     -----------
     This algoritm is adapted from TopoToolbox matlab codes by Wolfgang Schwanghart 
@@ -606,7 +589,18 @@ def get_presills(filldem, flats, sills, as_positions=True):
     
     Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
     MATLAB-based software for topographic analysis and modeling in Earth 
-    surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014  
+    surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
+    
+    :param filldem: Array of values representing a filled DEM
+    :type filldem: numpy.ndarray
+    :param flats: Numpy logical array locating the flats (cells without downward neighbouring cells)
+    :type flats: numpy.ndarray
+    :param sills: Numpy logical array location the sills (cells where flat regions spill over into lower terrain)
+    :type sills: numpy.ndarray
+    :param as_positions: Default `True`
+    :type as_positions: bool, optional
+    :return: `list` of `tuple` containing the locations of the presill pixels
+    :rtype: list
     """
     dims = filldem.shape
     row, col = np.where(sills)
@@ -640,20 +634,14 @@ def get_presills(filldem, flats, sills, as_positions=True):
 
     
 def get_aux_topography(topodiff, flats):
-    """
-    This function calculate an auxiliar topography to sort the flats areas
-
-    Parameters:
-    -----------
-    flats : *numpy.array* [dtype=int8]
-      Numpy array [np.int8 type] with the location of the flats
-    topodiff : *numpy.array* [dtype=float32]
-      Numpy array [np.float32 type] with the auxiliar topography (diference between filldem and dem)
+    """This function calculates an auxiliar topography to sort the flat areas
     
-    Return:
-    -------
-    aux_topography : *np.array*
-      Auxiliar topography to sort flats areas
+    :param topodiff: Numpy array [`numpy.int8` type] with the locations of the flats
+    :type topodiff: numpy.ndarray
+    :param flats: Numpy array [`numpy.float32` type] with the auxiliar topography (difference between filldem and dem)
+    :type flats: numpy.ndarray
+    :return: Axiliar topography to sort flat areas
+    :rtype: numpy.ndarray
     """              
     struct = np.ones((3, 3), dtype=np.int8)
     lbl_arr, nlbl = ndimage.label(flats, structure=struct)
