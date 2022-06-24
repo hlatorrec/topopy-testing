@@ -86,22 +86,18 @@ class Flow(PRaster):
                 raise FlowError("Unexpected Error creating the Flow object")
     
     def save(self, path):
-        """
-        Saves the flow object as a geotiff. The geotiff file it wont have any
-        sense if its open with GIS software.
+        """Saves the flow object as a geotiff. This geotiff file will not make any
+        sense if opened by a different GIS software
         
-        Parameters:
-        ===========
-        path : *str* 
-          Path to store the geotiff file with the Flow data
-
-        The organization of this geotiff is as follow::
+        This geotiff file is organised as follows:
             
-        * Band 1 --> Givers pixels reshaped to self._dims
+        * Band 1 --> Giver pixels reshaped to self._dims
         * Band 2 --> Receiver pixels reshaped to self._dims
-        * Band 3 --> Elevation of givers reshaped to self._dims)
+        * Band 3 --> Elevation of giver pixels reshaped to self._dims)
+        
+        :param path: Path to store the geotiff file with the corresponding Flow data
+        :type path: str
         """
-
         driver = gdal.GetDriverByName("GTiff")
         raster = driver.Create(path, self._size[0], self._size[1], 3, gdal.GDT_UInt32)
         raster.SetGeoTransform(self._geot)
@@ -122,14 +118,11 @@ class Flow(PRaster):
         raster.GetRasterBand(1).SetNoDataValue(no_cells)
 
     def load(self, path):
-        """
-        Load a geotiff file with flow direction information. This geotiff must
-        have been saved with the save_gtiff() function.
+        """Load a geotiff file with flow direction information. This geotiff must
+        have been saved by the `self.save()` function
         
-        Parameters:
-        ===========
-        path : *str* 
-          Path for the Flow geotiff.
+        :param path: Path to Flow geotiff file
+        :type path: str
         """
         # Elements inherited from Grid.__init__
         super().__init__(path)    
@@ -157,21 +150,10 @@ class Flow(PRaster):
         self._nodata_pos = np.where(aux_arr==0)[0]
     
     def get_flow_accumulation(self, weights=None, nodata=True, asgrid=True):
-        """
-        Calculates the flow accumulation from the topologically sorted pixels of the
+        """Calculates the flow accumulation from the topologically sorted pixels of the
         Flow object. As pixels of the Flow objects are sorted topologically, the flow
-        accumulation can be obtained very fast with a computational time that is linearly
-        dependent on the number of cell of the DEM.
-        
-        Parameters:
-        ===========  
-        weights : *topopy.Grid*
-          Grid with weights for the flow accumulation (p.e. precipitation values)
-        nodata : *bool*
-          Boolean flag that indicates if the output flow accumulation grid will maintain NoData values. 
-          If nodata=False, nodata values will be filled with 0 and NoDataValue will set to None. 
-        asgrid : *bool*
-          Indicates if the network is returned as topopy.Grid (True) or as a numpy.array
+        accumulation can be obtained really fast. The computation time is linearly
+        dependent on the number of cells on the DEM.
         
         Usage:
         ======
@@ -182,7 +164,19 @@ class Flow(PRaster):
         ----------
         Braun, J., Willett, S.D., 2013. A very efficient O(n), implicit and parallel 
         method to solve the stream power equation governing fluvial incision and landscape 
-        evolution. Geomorphology 180–181, 170–179. 
+        evolution. Geomorphology 180–181, 170–179.
+        
+        :param weights: Weighted grid for flow accumulation (i.e. precipitation values).
+            Default `None`
+        :type weights: topopy.Grid, optional
+        :param nodata: Flag to determine whether the output flow accumulation keeps NoData values.
+            Default `True`
+        :type nodata: bool, optional
+        :param asgrid: Flag to determine whether the output is given as `topopy.Grid` (`True`) or `numpy.ndarray` (`False`).
+            Default `True`
+        :type asgrid: bool, optional
+        :return: Flow accumulation Grid
+        :rtype: topopy.Grid, numpy.ndarray
         """
         dims = self.get_dims()
         ncells = self.get_ncells()
@@ -231,25 +225,9 @@ class Flow(PRaster):
             return facc
         
     def get_stream_poi(self, threshold, kind="heads", coords="CELL"):
-        """
-        This function finds points of interest of the drainage network. These points of interest
-        can be 'heads', 'confluences' or 'outlets'.
+        """This function finds points of interest on the drainage network. These points of interest
+        can be 'heads', 'confluences' or 'outlets'
         
-        Parameters:
-        -----------
-        threshold : *int*
-          Flow accumulation threshold to extract stream POI (in number of cells)
-        kind : *str* {'heads', 'confluences', 'outlets'}
-          Kind of point of interest to return.
-        coords : *str* {'CELL', 'XY', 'IND'}
-          Output coordinates for the stream point of interest. 
-          
-        Returns:
-        -----------
-        numpy.ndarray
-          Numpy ndarray with one (id) or two columns ([row, col] or [xi, yi] - depending on coords) 
-          with the location of the points of interest 
-          
         References:
         -----------
         The algoritms to extract the point of interest have been adapted to Python 
@@ -260,8 +238,16 @@ class Flow(PRaster):
         Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
         MATLAB-based software for topographic analysis and modeling in Earth 
         surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
+        
+        :param threshold: Flow accumulation threshold to extract points of interest, in number of cells
+        :type threshold: int
+        :param kind: Kind of point to return. Can be 'heads', 'confluences' or 'outlets'. Default 'heads'
+        :type kind: str, optional
+        :param coords: Output coordinates for the points of interest. Can be 'CELL', 'XY' or 'IND'. Default 'CELL'
+        :type coords: str, optional
+        :return: Array with one (id) or two columns ([row, col] or [xi, yi] - depending on coords) locating the points of interest
+        :rtype: numpy.ndarray
         """
-
         # Get drainage network using the given threshold
         fac = self.get_flow_accumulation(nodata=False, asgrid=False)
         w = fac > threshold
@@ -305,26 +291,9 @@ class Flow(PRaster):
             return np.array((row, col)).T
 
     def get_drainage_basins(self, outlets=None, min_area = 0.005, asgrid=True):
-        """
-        This function extracts the drainage basins for the Flow object and returns a Grid object that can
-        be saved into the disk.
+        """This function extracts the drainage basins for the Flow object and returns a Grid object that can
+        be saved to disk
         
-        Parameters:
-        ===========
-        outlets : *iterable*
-          List/tuple with (x, y) coordinates for the outlets, or 2-D numpy.ndarray
-          with [x, y] columns. If outlets is None, all possible outlets will be 
-          extracted
-        min_area : *float*
-          Minimum area for basins to avoid very small basins. The area is given as a 
-          percentage of the total number of cells (default 0.5%). Only valid if outlets is None.
-        asgrid : *bool*
-          Indicates if the network is returned as topopy.Grid (True) or as a numpy.ndarray (False)
-
-        Return:
-        =======
-        basins : *topopy.Grid* object or numpy.ndarray with the different drainage basins.
-
         Usage:
         =====
         basins = fd.drainage_basins() # Extract all the basins in the Flow object with area larger than 0.05% of the number of pixels
@@ -344,6 +313,18 @@ class Flow(PRaster):
         Schwanghart, W., Scherler, D., 2014. Short Communication: TopoToolbox 2 - 
         MATLAB-based software for topographic analysis and modeling in Earth 
         surface sciences. Earth Surf. Dyn. 2, 1–7. https://doi.org/10.5194/esurf-2-1-2014
+        
+        :param outlets: `list` or `tuple` with (x, y) coordinates for the outlets, or 2-D `numpy.ndarray` with [x, y] columns.
+        If left at `None`, all possible outlets will be extracted. Default `None`
+        :type outlets: list, tuple, numpy.ndarray, optional, iterable
+        :param min_area: Minimum area required for basins to avoid very small ones.
+            This area is given as a percentage of the total number of cells. Only used if outlets is `None`.
+            Default 0.005 (0.5%)
+        :type min_area: float, optional
+        :param asgrid: Flag to determine whether the Grid is returned as `topopy.Grid` (`True`) or `numpy.ndarray` (`False`)
+        :type asgrid: bool, optional
+        :return: Grid containing the different drainage basins
+        :rtype: topopy.Grid, numpy.ndarray
         """
         # Sino especificamos outlets pero si área mínima, extraemos outlets con ese area mínima
         if outlets is None and min_area > 0:
@@ -416,24 +397,20 @@ class Flow(PRaster):
             return basin_arr
     
     def snap_points(self, input_points, threshold, kind="channel", remove_duplicates=False):
-        """
-        Snap input points to channel cells or to stream POI
+        """Snap input points to channel cells or to stream points of interest
         
-        Parameters:
-        ===========
-        input_points : *numpy.ndarray*
-          Numpy 2-D ndarray, which first two columns are x and y coordinates [x, y, ...]
-        threshold : *int*
-          Flow accumulation threshold (in number of cells) to extract channel cells or stream POI 
-        kind : *str* {'channel', 'heads', 'confluences', 'outlets'}  
-            Kind of point to snap input points
-        
-        Returns:
-        ===========
-        numpy.ndarray
-          Numpy ndarray with two columns [xi, yi] with the snap points
-        """
-        
+        :param input_points: Numpy 2-D ndarray, where the first two columns are x and y coordinates [x, y, ...]
+        :type input_points: numpy.ndarray
+        :param threshold: Flow accumulation threshold, in number of cells, to extract channel cells or stream points of interest
+        :type threshold: int
+        :param kind: Kind of point to snap input points. Can be 'channel', 'heads', 'confluences' or 'outlets'.
+            Default 'channel'
+        :type kind: str, optional
+        :param remove_duplicates: Flag to determine whether duplicate points are removed
+        :type remove_duplicates: bool, optional
+        return: Array with two columns [xi, yi] containing the snap points
+        :rtype: numpy.ndarray
+        """     
         # Extract a numpy array with the coordinate to snap the points
         if kind in ['heads', 'confluences', 'outlets']:
             poi = self.get_stream_poi(threshold, kind, "XY")         
@@ -468,10 +445,9 @@ class Flow(PRaster):
         return out_p
         
     def _create_output_grid(self, array, nodata_value=None):
-        """
-        Convenience function that creates a Grid object from an input array. The array
-        must have the same shape that self._dims and will maintain the Flow object 
-        properties as dimensions, geotransform, reference system, etc.
+        """Convenience function that creates a Grid object from an input array. The array
+        must have the same shape as self._dims and will maintain the properties of the Flow object 
+        such as dimensions, geotransform, reference system, etc
         
         Parameters:
         ===========
@@ -492,11 +468,10 @@ class Flow(PRaster):
         return grid
     
     def _get_nodata_pos(self):
-        """
-        Function that returns nodata positions from ix and ixc lists. These NoData
-        position could be slightly different from original DEM Nodata positions, since 
-        individual cells that do not receive any flow and at the same time flow to 
-        Nodata cells are also considered NoData and excluded from analysis.      
+        """Function that returns nodata positions from ix and ixc lists. These NoData
+        positions could be slightly different from original DEM Nodata positions, since 
+        individual cells that do not receive any flow and also flow to 
+        Nodata cells are considered NoData and excluded from analysis
         """
         aux_arr = np.zeros(self.get_ncells())
         aux_arr[self._ix] = 1
