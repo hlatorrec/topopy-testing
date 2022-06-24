@@ -8,7 +8,6 @@ dependencies:
     - matplotlib
     - scipy
     - scikit-image
-    - gdal == 3.5
     - pip:
         - sphinx-rtd-theme
         - nbsphinx
